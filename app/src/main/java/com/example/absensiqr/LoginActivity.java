@@ -1,6 +1,8 @@
 package com.example.absensiqr;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +29,13 @@ public class LoginActivity extends AppCompatActivity {
         sp.setKeepOnScreenCondition(()-> isLoading);
         new android.os.Handler().postDelayed(()->{
             isLoading = false;
-        },5000);
+        },2000);
+
+        Button btnLogin = findViewById(R.id.btnLogin);
+        btnLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 }

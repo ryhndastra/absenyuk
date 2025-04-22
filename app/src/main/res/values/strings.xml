@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AbsensiQr</string>
+    <string name="login">Login</string>
+    <string name="todo">TODO</string>
+    <string name="username_widyatama_ac_id">username@widyatama.ac.id</string>
+    <string name="password">Password</string>
 </resources>
