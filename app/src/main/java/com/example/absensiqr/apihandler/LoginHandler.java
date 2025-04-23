@@ -12,7 +12,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class LoginHandler {
-    private static final String BASE_URL = "http://192.168.100.126/absensi/";
+    private static final String BASE_URL = "http://192.168.100.126/absensiAPI/";
 
     public interface CallBack{
         void onSuccess(JSONObject data);
