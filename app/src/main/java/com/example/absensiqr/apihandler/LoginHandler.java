@@ -55,7 +55,7 @@ public class LoginHandler {
                 callBack.onError("Error : " + e.getMessage());
                 throw new RuntimeException(e);
             }
-        });
+        }).start();
     }
 
     public static void Login(String email, String password, CallBack callBack){
