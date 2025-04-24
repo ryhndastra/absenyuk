@@ -22,61 +22,70 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
 
     private boolean isLoading = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen sp = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_login);
+        sp.setKeepOnScreenCondition(() -> isLoading);
+
+        // LANGSUNG CEK LOGIN DI AWAL
+        LoginHandler.CheckLogin(LoginActivity.this, new LoginHandler.CallBack() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                runOnUiThread(() -> {
+                    isLoading = false;
+                    Toast.makeText(LoginActivity.this, "Kamu sudah login", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
+            }
+
+            @Override
+            public void onError(String message) {
+                runOnUiThread(() -> {
+                    isLoading = false;
+                    Log.e("CheckLogin", "Error : " + message);
+                    // TAMPILKAN UI LOGIN KARENA BELUM LOGIN
+                    setContentView(R.layout.activity_login);
+                    setupLoginForm();
+                });
+            }
+        });
+    }
+
+    private void setupLoginForm() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        sp.setKeepOnScreenCondition(()-> isLoading);
-        new android.os.Handler().postDelayed(()->{
-            isLoading = false;
-            LoginHandler.CheckLogin(LoginActivity.this, new LoginHandler.CallBack() {
-                @Override
-                public void onSuccess(JSONObject data) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(LoginActivity.this, "Kamu sudah login", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    });
-                }
-
-                @Override
-                public void onError(String message) {
-                    runOnUiThread(() -> {
-                        Log.e("CheckLogin", "Error : " + message);
-                    });
-                }
-            });
-        },300);
-
         Button btnLogin = findViewById(R.id.btnLogin);
         EditText txtEmail = findViewById(R.id.txtEmail);
         EditText txtPassword = findViewById(R.id.txtPassword);
+
         btnLogin.setOnClickListener(v -> {
-            LoginHandler.Login(LoginActivity.this,txtEmail.getText().toString(), txtPassword.getText().toString(), new LoginHandler.CallBack() {
+            String email = txtEmail.getText().toString();
+            String password = txtPassword.getText().toString();
+
+            LoginHandler.Login(LoginActivity.this, email, password, new LoginHandler.CallBack() {
                 @Override
                 public void onSuccess(JSONObject data) {
                     runOnUiThread(() -> {
                         Log.d("LoginActivity", "Login success: " + data);
-
                         try {
-                            String id =  data.getString("id");
-                            String email =  data.getString("email");
+                            String id = data.getString("id");
+                            String userEmail = data.getString("email");
+
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra("user id", id);
-                            intent.putExtra("user email", email);
+                            intent.putExtra("user email", userEmail);
                             startActivity(intent);
                             finish();
                         } catch (JSONException e) {
-                            Toast.makeText(LoginActivity.this, "Error Parsing JSon", Toast.LENGTH_LONG).show();
+                            Toast.makeText(LoginActivity.this, "Error Parsing JSON", Toast.LENGTH_LONG).show();
                             throw new RuntimeException(e);
                         }
                     });
@@ -85,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onError(String message) {
                     runOnUiThread(() -> {
-                        Log.e("Error" , message);
+                        Log.e("LoginError", message);
                         Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
                     });
                 }
