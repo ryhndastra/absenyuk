@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -50,6 +51,24 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
+
+        Button btnScan = findViewById(R.id.btnScan);
+        btnScan.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, QRCodeScanner.class);
+            startActivityForResult(intent, 995);
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 995 && resultCode == RESULT_OK && data != null){
+            String scannedResult = data.getStringExtra("scanned result");
+            Toast.makeText(this, "Result QR : " + scannedResult, Toast.LENGTH_LONG).show();
+
+            //buat masukin ke database dibawah ini
+        }
+        
     }
 }
 
