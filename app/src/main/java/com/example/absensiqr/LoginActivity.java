@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
                     });
                 }
             });
-        },2000);
+        },300);
 
         Button btnLogin = findViewById(R.id.btnLogin);
         EditText txtEmail = findViewById(R.id.txtEmail);
