@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.core.splashscreen)
+    implementation(libs.journeyapps.zxing)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     testImplementation(libs.junit)
