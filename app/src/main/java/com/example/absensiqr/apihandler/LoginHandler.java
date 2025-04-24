@@ -1,5 +1,8 @@
 package com.example.absensiqr.apihandler;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,16 +13,19 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 public class LoginHandler {
     private static final String BASE_URL = "http://192.168.100.126/absensiAPI/";
-
+    private static final String APP_PREF = "account_logged_in";
+    private static final String SESSION_KEY = "SessionId";
     public interface CallBack{
         void onSuccess(JSONObject data);
         void onError(String message);
     }
 
-    private static void sendRequest(String endPoint, String method, JSONObject jsonBody,CallBack callBack){
+    private static void sendRequest(Context context, String endPoint, String method, JSONObject jsonBody, CallBack callBack){
         new Thread(() -> {
             try {
                 URL url = new URL(BASE_URL + endPoint);
@@ -27,12 +33,31 @@ public class LoginHandler {
                 conn.setRequestMethod(method);
                 conn.setRequestProperty("Content-Type" , "application/json");
                 conn.setRequestProperty("Accept" , "application/json");
+                conn.setUseCaches(false);
+
+                SharedPreferences prefs = context.getSharedPreferences(APP_PREF, Context.MODE_PRIVATE);
+                String sessionId = prefs.getString(SESSION_KEY, null);
+                if(sessionId != null){
+                    conn.setRequestProperty("Cookie", sessionId);
+                }
 
                 if (jsonBody != null){
-                    conn.setDoOutput(true);
                     byte[] postData = jsonBody.toString().getBytes(StandardCharsets.UTF_8);
+                    conn.setRequestProperty("Content-Length", String.valueOf(postData.length));
+                    conn.setDoOutput(true);
                     try(OutputStream os = conn.getOutputStream()){
                         os.write(postData);
+                    }
+                }
+
+                Map<String, List<String>> headerFields = conn.getHeaderFields();
+                List<String> cookiesHeader = headerFields.get("Set-Cookie");
+                if(cookiesHeader != null){
+                    for(String cookie : cookiesHeader){
+                        if (cookie.startsWith("PHPSESSID")){
+                            String newSession = cookie.split(";")[0];
+                            prefs.edit().putString(SESSION_KEY, newSession).apply();
+                        }
                     }
                 }
 
@@ -58,7 +83,7 @@ public class LoginHandler {
         }).start();
     }
 
-    public static void Login(String email, String password, CallBack callBack){
+    public static void Login(Context context,String email, String password, CallBack callBack){
         JSONObject json = new JSONObject();
         try {
             json.put("email", email);
@@ -67,14 +92,26 @@ public class LoginHandler {
             callBack.onError("Error : " + e.getMessage());
             throw new RuntimeException(e);
         }
-        sendRequest("login.php", "POST", json, callBack);
+        sendRequest(context, "login.php", "POST", json, callBack);
     }
 
-    public static void CheckLogin(CallBack callBack){
-        sendRequest("login.php", "GET", null, callBack);
+    public static void CheckLogin(Context context,CallBack callBack){
+        sendRequest(context, "login.php", "GET", null, callBack);
     }
 
-    public static void Logout(CallBack callBack){
-        sendRequest("logout.php", "GET", null, callBack);
+    public static void Logout(Context context,CallBack callBack){
+        sendRequest(context, "logout.php", "GET", null, new CallBack() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                SharedPreferences prefs = context.getSharedPreferences(APP_PREF, Context.MODE_PRIVATE);
+                prefs.edit().remove(SESSION_KEY).apply();
+                callBack.onSuccess(data);
+            }
+
+            @Override
+            public void onError(String message) {
+                callBack.onError(message);
+            }
+        });
     }
 }

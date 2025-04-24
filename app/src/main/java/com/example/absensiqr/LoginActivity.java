@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         sp.setKeepOnScreenCondition(()-> isLoading);
         new android.os.Handler().postDelayed(()->{
             isLoading = false;
-            LoginHandler.CheckLogin(new LoginHandler.CallBack() {
+            LoginHandler.CheckLogin(LoginActivity.this, new LoginHandler.CallBack() {
                 @Override
                 public void onSuccess(JSONObject data) {
                     runOnUiThread(() -> {
@@ -61,10 +61,12 @@ public class LoginActivity extends AppCompatActivity {
         EditText txtEmail = findViewById(R.id.txtEmail);
         EditText txtPassword = findViewById(R.id.txtPassword);
         btnLogin.setOnClickListener(v -> {
-            LoginHandler.Login(txtEmail.getText().toString(), txtPassword.getText().toString(), new LoginHandler.CallBack() {
+            LoginHandler.Login(LoginActivity.this,txtEmail.getText().toString(), txtPassword.getText().toString(), new LoginHandler.CallBack() {
                 @Override
                 public void onSuccess(JSONObject data) {
                     runOnUiThread(() -> {
+                        Log.d("LoginActivity", "Login success: " + data);
+
                         try {
                             String id =  data.getString("id");
                             String email =  data.getString("email");
