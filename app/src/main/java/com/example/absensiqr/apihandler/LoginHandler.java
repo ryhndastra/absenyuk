@@ -46,10 +46,10 @@ public class LoginHandler {
                 }
 
                 JSONObject resJSon = new JSONObject(response.toString());
-                if (resJSon.optString("status").equals("success")){
+                if (resJSon.optString("status").equals("Success")){
                     callBack.onSuccess(resJSon.optJSONObject("data"));
                 }else {
-                    callBack.onError(resJSon.optString("Message", "Unknown error occured"));
+                    callBack.onError(resJSon.optString("message", "Unknown error occured"));
                 }
             } catch (IOException | JSONException e) {
                 callBack.onError("Error : " + e.getMessage());
