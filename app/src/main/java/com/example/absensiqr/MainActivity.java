@@ -77,6 +77,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, QRCodeScanner.class);
             startActivityForResult(intent, 995);
         });
+
+        Button btnLihatAbsen =findViewById(R.id.btnLihatAbsen);
+        btnLihatAbsen.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, DataAbsenActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override
@@ -113,4 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+
+
 }
