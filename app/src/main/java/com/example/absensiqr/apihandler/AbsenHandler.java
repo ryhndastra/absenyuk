@@ -3,6 +3,7 @@ package com.example.absensiqr.apihandler;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -93,4 +94,40 @@ public class AbsenHandler {
         }
         sendRequest(context, "absen.php", "POST", json, callback);
     }
+
+    public interface CallBackArray {
+        void onSuccess(JSONArray data);
+        void onError(String message);
+    }
+
+    public static void GetAllAbsen(Context context, CallBackArray callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(BASE_URL + "getAbsen.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "application/json");
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (resJson.optString("status").equals("Success")) {
+                    callback.onSuccess(resJson.getJSONArray("data"));
+                } else {
+                    callback.onError(resJson.optString("message", "Gagal mengambil data"));
+                }
+
+            } catch (Exception e) {
+                callback.onError("Error: " + e.getMessage());
+            }
+        }).start();
+    }
+
+
 }
