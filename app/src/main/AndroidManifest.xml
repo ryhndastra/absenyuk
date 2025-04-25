@@ -4,10 +4,10 @@
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="true"/>
+        android:required="true" />
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -21,9 +21,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:theme="@style/Theme.App.Starting"
+            android:name=".DataAbsenActivity"
+            android:exported="false" />
+        <activity
+            android:name=".data_absen"
+            android:exported="false" />
+        <activity
             android:name=".LoginActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,7 +44,7 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity"
-            tools:replace="screenOrientation"/>
+            tools:replace="screenOrientation" />
     </application>
 
 </manifest>
